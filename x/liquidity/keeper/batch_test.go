@@ -21,12 +21,16 @@ const (
 )
 
 func TestBadDeposit(t *testing.T) {
-	simapp, ctx := app.CreateTestInput()
-	params := simapp.LiquidityKeeper.GetParams(ctx)
+	simapp, ctx := app.CreateTestInput() // liquidity app, context initial setting
+
+	params := simapp.LiquidityKeeper.GetParams(ctx) // get parameters
 
 	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, params.MinInitDepositAmount), sdk.NewCoin(DenomY, params.MinInitDepositAmount))
+	// coin set with min init deposit amount (1000000)
 	depositorAddr := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
+	// make random address for the depositor
 
+	// create pool with certain amount of Coins
 	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, &types.MsgCreatePool{
 		PoolCreatorAddress: depositorAddr.String(),
 		PoolTypeId:         types.DefaultPoolTypeID,
@@ -35,10 +39,10 @@ func TestBadDeposit(t *testing.T) {
 	require.NoError(t, err)
 
 	// deposit with empty message
-	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, &types.MsgDepositWithinBatch{})
+	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, &types.MsgDepositWithinBatch{}) // {} : empty msg
 	require.ErrorIs(t, err, types.ErrPoolNotExists)
 
-	// deposit coins more than it has
+	// deposit coins more than it has (no coins because depositor spend all initial coin when creating pool)
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, &types.MsgDepositWithinBatch{
 		DepositorAddress: depositorAddr.String(),
 		PoolId:           pool.Id,
@@ -48,8 +52,10 @@ func TestBadDeposit(t *testing.T) {
 
 	// forcefully delete current pool batch
 	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+	// cf) there is no deposit msg because above two cases are invalid
 	require.True(t, found)
 	simapp.LiquidityKeeper.DeletePoolBatch(ctx, batch)
+
 	// deposit coins when there is no pool batch
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, &types.MsgDepositWithinBatch{
 		DepositorAddress: depositorAddr.String(),
@@ -57,6 +63,7 @@ func TestBadDeposit(t *testing.T) {
 		DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.OneInt()), sdk.NewCoin(DenomY, sdk.OneInt())),
 	})
 	require.ErrorIs(t, err, types.ErrPoolBatchNotExists)
+	// if there is no pool batch, we can't process deposit, withdraw, ...
 }
 
 func TestBadWithdraw(t *testing.T) {
