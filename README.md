@@ -1,3 +1,4 @@
+<!-- markdown-link-check-disable-next-line -->
 [![codecov](https://codecov.io/gh/tendermint/liquidity/branch/develop/graph/badge.svg)](https://codecov.io/gh/tendermint/liquidity?branch=develop)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/tendermint/liquidity)](https://pkg.go.dev/github.com/tendermint/liquidity)
 
@@ -35,7 +36,7 @@ For details, see the [Liquidity Module Light Paper](doc/LiquidityModuleLightPape
 Requirement | Notes
 ----------- | -----------------
 Go version  | Go1.15 or higher
-Cosmos SDK  | v0.44.0 or higher
+Cosmos SDK  | v0.44.2 or higher
 
 ### Get Liquidity Module source code
 
